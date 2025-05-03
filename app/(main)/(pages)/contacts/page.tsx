@@ -1,11 +1,12 @@
 "use client"
+export const dynamic = "force-dynamic";
 import React from 'react'
 import ContactsTable from './_components/contacts-table'
 import { Button } from '@/components/ui/button'
 import { useRouter } from "next/navigation"
-type Props = {}
 
-const Contacts = (props: Props) => {
+
+const Contacts = () => {
     const router = useRouter()
     const handleClick = () => {
         router.push("/contacts/new")
