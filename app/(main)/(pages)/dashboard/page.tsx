@@ -12,7 +12,8 @@ export default function DashboardPage() {
         <div className="space-y-6 p-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.firstName}👋</h1>
-                <p className="text-muted-foreground">Here's what's happening with your bots today.</p>
+                <p className="text-muted-foreground"><p>Here&apos;s what&apos;s happening with your bots today</p>
+                    .</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
