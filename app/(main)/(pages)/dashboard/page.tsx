@@ -13,7 +13,7 @@ export default function DashboardPage() {
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.firstName}👋</h1>
                 <p className="text-muted-foreground">
-                    Here&apos;s what&apos;s happening with your bots today.
+                    Your bots status today...
                 </p>
             </div>
 
