@@ -1,9 +1,8 @@
 "use client"
-import { Button } from '@/components/ui/button'
 import { usePaths } from '@/hooks/use-nav'
 import React from 'react'
 import Items from './items'
-import UpgradeCard from './upgrade'
+
 
 type Props = {
 
