@@ -3,31 +3,94 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+	--foreground-rgb: 255, 255, 255;
+	--background-start-rgb: 20, 20, 30;
+	--background-end-rgb: 20, 20, 30;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+	.text-balance {
+		text-wrap: balance;
+	}
+}
+
+@layer base {
+	:root {
+		/* Light mode */
+		--background: 0 0% 100%;
+		--foreground: 240 10% 3.9%;
+
+		--card: 0 0% 100%;
+		--card-foreground: 240 10% 3.9%;
+
+		--popover: 0 0% 100%;
+		--popover-foreground: 240 10% 3.9%;
+
+		--primary: 258 100% 67%; /* vibrant violet */
+		--primary-foreground: 0 0% 100%;
+
+		--secondary: 240 4.8% 95.9%;
+		--secondary-foreground: 240 5.9% 10%;
+
+		--muted: 240 4.8% 95.9%;
+		--muted-foreground: 240 3.8% 46.1%;
+
+		--accent: 258 100% 67%;
+		--accent-foreground: 0 0% 100%;
+
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 0 0% 98%;
+
+		--border: 240 5.9% 90%;
+		--input: 240 5.9% 90%;
+		--ring: 258 100% 67%;
+
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: 228 9% 10%; /* dark slate */
+		--foreground: 220 20% 98%;
+
+		--card: 228 9% 12%;
+		--card-foreground: 220 15% 95%;
+
+		--popover: 228 9% 12%;
+		--popover-foreground: 220 15% 95%;
+
+		--primary: 258 100% 67%; /* vibrant violet */
+		--primary-foreground: 0 0% 100%;
+
+		--secondary: 228 8% 15%;
+		--secondary-foreground: 220 15% 95%;
+
+		--muted: 228 8% 15%;
+		--muted-foreground: 220 6% 60%;
+
+		--accent: 258 100% 67%;
+		--accent-foreground: 0 0% 100%;
+
+		--destructive: 0 72% 48%;
+		--destructive-foreground: 0 0% 100%;
+
+		--border: 228 8% 20%;
+		--input: 228 8% 20%;
+		--ring: 258 100% 67%;
+
+		--chart-1: 0 80% 60%; /* red */
+		--chart-2: 145 63% 45%; /* green */
+		--chart-3: 40 100% 65%; /* orange */
+		--chart-4: 200 70% 65%; /* blue */
+		--chart-5: 280 70% 60%; /* violet */
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+	}
 }

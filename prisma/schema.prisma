@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  clerkId      String        @unique
+  email        String        @unique
+  firstname    String?
+  lastname     String?
+  createdAt    DateTime      @default(now())
+  contacts     Contact[]
+  integrations Integration[]
+}
+
+model Contact {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  email     String   @unique
+  firstname String?
+  lastname  String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.Uuid
+}
+
+model Integration {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  userId         String          @db.Uuid
+  user           User            @relation(fields: [userId], references: [id])
+  type           IntegrationType
+  accessToken    String
+  refreshToken   String? // optional, only for providers that support it
+  expiresAt      DateTime? // optional, if the token expires
+  externalUserId String // the user ID from the external service (e.g. Instagram user id)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([userId, type])
+}
+
+enum IntegrationType {
+  INSTAGRAM
+  GMAIL
+  FACEBOOK
+  WHATSAPP
+  SMS
+}
