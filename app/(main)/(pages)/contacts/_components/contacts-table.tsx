@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table"
 
 const fetchContacts = async () => {
-    const res = await fetch("http://localhost:3000/api/contacts");
+    const res = await fetch("/api/contacts");
     if (!res.ok) throw new Error("Failed to fetch contacts");
     return res.json();
 };
