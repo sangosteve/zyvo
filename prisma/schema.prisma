@@ -44,6 +44,7 @@ model Integration {
   updatedAt      DateTime        @updatedAt
 
   @@unique([userId, type])
+  @@unique([externalUserId, type]) // <- add this if you want to prevent sharing osf the same instagram account
 }
 
 enum IntegrationType {

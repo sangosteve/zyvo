@@ -5,14 +5,10 @@ const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
 };
 
-const prismaClientSingleton = () => {
-	return new PrismaClient({
-		log: process.env.NODE_ENV === "development" ? ["query"] : [],
+export const prisma =
+	globalForPrisma.prisma ??
+	new PrismaClient({
+		log: ["query"], // Optional: for debugging in development
 	});
-};
 
-export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== "production") {
-	globalForPrisma.prisma = prisma;
-}
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

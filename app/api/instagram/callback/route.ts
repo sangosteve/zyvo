@@ -13,43 +13,54 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json({ error: "Missing code" }, { status: 400 });
 	}
 
-	// Step 1: Get short-lived token
-	const tokenRes = await fetch("https://api.instagram.com/oauth/access_token", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		body: new URLSearchParams({
-			client_id: clientId,
-			client_secret: clientSecret,
-			grant_type: "authorization_code",
-			redirect_uri: redirectUri,
-			code,
-		}),
-	});
-
-	const tokenData = await tokenRes.json();
-	if (!tokenRes.ok) {
-		console.error("Error getting short-lived token:", tokenData);
-		return NextResponse.json(tokenData, { status: tokenRes.status });
-	}
-
-	const shortLivedToken = tokenData.access_token;
-
-	// Step 2: Exchange for long-lived token
-	const longLivedRes = await fetch(
-		`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortLivedToken}`
+	// Step 1: Exchange code for short-lived access token
+	const shortTokenRes = await fetch(
+		"https://api.instagram.com/oauth/access_token",
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({
+				client_id: "2104590016710116",
+				client_secret: clientSecret,
+				grant_type: "authorization_code",
+				redirect_uri: redirectUri,
+				code: code,
+			}),
+		}
 	);
-	const longLivedData = await longLivedRes.json();
-	if (!longLivedRes.ok) {
-		console.error("Error getting long-lived token:", longLivedData);
-		return NextResponse.json(longLivedData, { status: longLivedRes.status });
+
+	const shortTokenData = await shortTokenRes.json();
+	if (!shortTokenRes.ok) {
+		console.error("Error getting short-lived token:", shortTokenData);
+		return NextResponse.json(shortTokenData, { status: shortTokenRes.status });
 	}
 
-	// Step 3: Get the currently logged-in user
+	const shortAccessToken = shortTokenData.access_token;
+
+	// Step 2: Get Instagram user ID and info using the short-lived token
+	const userInfoRes = await fetch(
+		`https://graph.instagram.com/v22.0/me?fields=id,username&access_token=${shortAccessToken}`
+	);
+
+	const userInfo = await userInfoRes.json();
+	if (!userInfoRes.ok) {
+		console.error("Error getting IG user info:", userInfo);
+		return NextResponse.json(userInfo, { status: userInfoRes.status });
+	}
+
+	console.log("userInfo: ", userInfo);
+
+	const instagramUserId = userInfo.id;
+
+	// Step 3: Get logged-in Clerk user
 	const user = await currentUser();
 	if (!user) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		const state = Buffer.from(
+			JSON.stringify({ accessToken: shortAccessToken, instagramUserId })
+		).toString("base64");
+		return NextResponse.redirect(new URL(`/sign-in?state=${state}`, req.url));
 	}
 
 	const existingUser = await findUser(user.id);
@@ -57,7 +68,7 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json({ error: "User not found" }, { status: 404 });
 	}
 
-	// Step 4: Save integration to DB
+	// Step 4: Save to DB (store short-lived access token)
 	await prisma.integration.upsert({
 		where: {
 			userId_type: {
@@ -66,18 +77,19 @@ export async function GET(req: NextRequest) {
 			},
 		},
 		update: {
-			accessToken: longLivedData.access_token,
-			expiresAt: new Date(Date.now() + longLivedData.expires_in * 1000),
-			externalUserId: longLivedData.user_id,
+			accessToken: shortAccessToken,
+			externalUserId: instagramUserId,
 		},
 		create: {
 			userId: existingUser.id,
 			type: "INSTAGRAM",
-			accessToken: longLivedData.access_token,
-			expiresAt: new Date(Date.now() + longLivedData.expires_in * 1000),
-			externalUserId: longLivedData.user_id,
+			accessToken: shortAccessToken,
+			externalUserId: instagramUserId,
 		},
 	});
 
-	return NextResponse.json({ success: true, message: "Instagram connected" });
+	// Step 5: Redirect to success page
+	return NextResponse.redirect(
+		new URL("https://gy3yg2zqw6wo.share.zrok.io/integrations", req.url)
+	);
 }

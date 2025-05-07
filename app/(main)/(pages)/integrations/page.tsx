@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Image from "next/image"
-
+import { useIntegrations } from "@/hooks/use-integrations";
 type Integration = {
     name: string
     description: string
@@ -13,54 +13,52 @@ type Integration = {
     features?: { name: string; description: string; enabled: boolean }[]
 }
 
-const integrations: Integration[] = [
+const ALL_INTEGRATIONS = [
     {
+        type: "INSTAGRAM",
         name: "Instagram",
         description: "Connect your IG account to receive and send messages.",
         icon: "/icons/instagram.svg",
-        connected: false,
     },
-
     {
+        type: "WHATSAPP",
         name: "WhatsApp",
         description: "Integrate with WhatsApp to automate and respond to messages.",
         icon: "/icons/whatsapp.svg",
-        connected: false,
     },
     {
+        type: "LINKEDIN",
         name: "LinkedIn",
         description: "Automate and respond to messages from your LinkedIn inbox.",
         icon: "/icons/linkedin.svg",
-        connected: false,
     },
     {
+        type: "SLACK",
         name: "Slack",
         description: "Send call and message logs to your Slack workspace.",
         icon: "/icons/slack.svg",
-        connected: true,
-        features: [
-            {
-                name: "Messages",
-                description: "Send incoming messages to my channel",
-                enabled: true,
-            },
-            {
-                name: "Missed calls",
-                description: "Send missed calls to my channel",
-                enabled: false,
-            },
-        ],
     },
     {
+        type: "DISCORD",
         name: "Discord",
         description: "Integrate with Discord to send and receive messages in your server.",
         icon: "/icons/discord.svg",
-        connected: false,
     },
-]
+] as const;
 
 
 export default function IntegrationsPage() {
+    const { data, isLoading } = useIntegrations();
+    const userIntegrations = data?.integrations ?? [];
+
+    const integrations = ALL_INTEGRATIONS.map(integration => {
+        const connectedIntegration = userIntegrations.find((i: { type: string; }) => i.type === integration.type);
+        return {
+            ...integration,
+            connected: !!connectedIntegration,
+            externalUserId: connectedIntegration?.externalUserId ?? null,
+        };
+    });
     const handleInstagramConnect = () => {
         window.location.href = "/api/instagram/connect";
     }
@@ -73,7 +71,9 @@ export default function IntegrationsPage() {
                 </p>
             </div>
 
-            {integrations.map((integration, idx) => (
+            {isLoading ? (
+                <p>Loading integrations...</p>
+            ) : (integrations.map((integration, idx) => (
                 <Card key={idx} className="bg-muted/10 border border-border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0">
                         <div className="flex items-center gap-4">
@@ -91,21 +91,18 @@ export default function IntegrationsPage() {
                         </Button>
                     </CardHeader>
 
-                    {integration.connected && integration.features?.length ? (
-                        <CardContent className="space-y-4 pt-4 border-t border-border">
-                            {integration.features.map((feature, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-foreground">{feature.name}</p>
-                                        <p className="text-sm text-muted-foreground">{feature.description}</p>
-                                    </div>
-                                    <Switch checked={feature.enabled} />
-                                </div>
-                            ))}
-                        </CardContent>
-                    ) : null}
+                    {/* const userIntegrations = data?.integrations ?? [];
+
+  const integrations = ALL_INTEGRATIONS.map(integration => {
+    const connectedIntegration = userIntegrations.find(i => i.type === integration.type);
+    return {
+      ...integration,
+      connected: !!connectedIntegration,
+      externalUserId: connectedIntegration?.externalUserId ?? null,
+    };
+  }); */}
                 </Card>
-            ))}
+            )))}
         </div>
     )
 }

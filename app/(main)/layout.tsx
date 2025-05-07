@@ -7,11 +7,11 @@ export default function MainLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex relative">
+        <div className="flex relative h-screen">
             <Sidebar />
             <main className="flex flex-col flex-1">
                 <Header />
-                <div className="p-4">
+                <div className="flex-1">
                     {children}
 
                 </div>
