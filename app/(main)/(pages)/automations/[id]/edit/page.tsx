@@ -1,6 +1,6 @@
 import React from 'react'
-import Flow from '../_components/flow'
-import Editor from '../_components/editor'
+import Editor from '../../_components/editor'
+
 
 
 const CreateAutomationsPage = () => {

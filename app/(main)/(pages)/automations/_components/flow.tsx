@@ -11,36 +11,58 @@ import {
     useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { TriggerNode } from "./trigger-node";
-import { ActionNode } from "./action-node";
-import { AddTriggerModal } from "./trigger-modal";
+import { TriggerNode } from "./nodes/trigger/trigger-node";
+import { ActionNode } from "./nodes/action/action-node";
+import { AddTriggerModal } from "./nodes/trigger/trigger-modal";
 import { useTriggerModal } from "@/stores/use-trigger-modal";
-
+import { useActionModal } from '@/stores/use-action-modal';
+import { AddActionModal } from "./nodes/action/action-modal";
+import { ActionTextSheet } from "./nodes/action/action-sheet";
 const nodeTypes = {
     trigger: TriggerNode,
     action: ActionNode,
 };
 
+type FlowProps = {
+    automation: {
+        id: string;
+        triggers: Array<{
+            id: string;
+            type: string | null;
+            config: any;
+        }>;
+    };
+};
+
 let id = 2;
 const getId = () => `trigger-${id++}`;
 
-const Flow = () => {
-    const [nodes, setNodes, onNodesChange] = useNodesState([
-        {
-            id: "trigger-1",
-            type: "trigger",
-            position: { x: 100, y: 0 },
-            data: {
-                label: "New Message Received",
-                config: { keywords: ["hi", "order", "price"] },
-            },
+const Flow = ({ automation }: FlowProps) => {
+    // const [nodes, setNodes, onNodesChange] = useNodesState([
+    //     {
+    //         id: "trigger-1",
+    //         type: "trigger",
+    //         position: { x: 100, y: 0 },
+    //         data: {
+    //             label: "New Message Received",
+    //             config: { keywords: ["hi", "order", "price"] },
+    //         },
+    //     },
+    // ]);
+    const triggerNodes = automation.triggers.map((trigger, index) => ({
+        id: trigger.id, // use the DB ID
+        type: "trigger",
+        position: { x: 100, y: index * 120 },
+        data: {
+            label: trigger.type || "Select trigger",
+            config: trigger.config || {},
         },
-    ]);
-
+    }));
+    const [nodes, setNodes, onNodesChange] = useNodesState(triggerNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
     const { open, closeModal } = useTriggerModal();
-
+    const { open: actionModalOpen, closeModal: closeActionModal } = useActionModal();
     const connectingNodeId = useRef<string | null>(null);
 
     const onConnectStart = useCallback((_, { nodeId }) => {
@@ -86,8 +108,8 @@ const Flow = () => {
                         type: "smoothstep",
                         markerEnd: {
                             type: 'arrowclosed',  // Arrowhead at the target end
-                            width: 12,
-                            height: 12,
+                            width: 24,
+                            height: 24,
                         },
                     },
                 ]);
@@ -108,13 +130,16 @@ const Flow = () => {
                 nodeTypes={nodeTypes}
                 onConnectStart={onConnectStart}
                 onConnectEnd={onConnectEnd}
-                connectionLineType={ConnectionLineType.B}
+                connectionLineType={ConnectionLineType.SmoothStep}
                 fitView
             >
                 <Controls position="top-left" />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
             <AddTriggerModal open={open} onClose={closeModal} />
+            <AddActionModal open={actionModalOpen} onClose={closeActionModal} />
+            <ActionTextSheet />
+
         </main>
     );
 };

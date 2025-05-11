@@ -91,16 +91,6 @@ export default function IntegrationsPage() {
                         </Button>
                     </CardHeader>
 
-                    {/* const userIntegrations = data?.integrations ?? [];
-
-  const integrations = ALL_INTEGRATIONS.map(integration => {
-    const connectedIntegration = userIntegrations.find(i => i.type === integration.type);
-    return {
-      ...integration,
-      connected: !!connectedIntegration,
-      externalUserId: connectedIntegration?.externalUserId ?? null,
-    };
-  }); */}
                 </Card>
             )))}
         </div>

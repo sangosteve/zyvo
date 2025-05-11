@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime      @default(now())
   contacts     Contact[]
   integrations Integration[]
+  automations  Automation[]
 }
 
 model Contact {
@@ -45,6 +46,39 @@ model Integration {
 
   @@unique([userId, type])
   @@unique([externalUserId, type]) // <- add this if you want to prevent sharing osf the same instagram account
+}
+
+model Automation {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name        String    @default("Untitled")
+  description String?
+  createdAt   DateTime  @default(now())
+  active      Boolean   @default(false)
+  triggers    Trigger[]
+  actions     Action[]
+  User        User?     @relation(fields: [userId], references: [id])
+  userId      String?   @db.Uuid()
+}
+
+model Trigger {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  type         String
+  Automation   Automation? @relation(fields: [automationId], references: [id])
+  automationId String?     @db.Uuid()
+}
+
+model Action {
+  id           String     @id @default(uuid()) @db.Uuid
+  type         String // e.g. "send_instagram_dm"
+  data         Json // e.g. { message: "Hi there!" }
+  automation   Automation @relation(fields: [automationId], references: [id])
+  automationId String     @db.Uuid
+
+  // 👇 These are new
+  parentActionId String?  @db.Uuid
+  parentAction   Action?  @relation("ActionParent", fields: [parentActionId], references: [id])
+  nextActions    Action[] @relation("ActionParent") // reverse relation
+  order          Int      @default(0) // Optional: useful if you want absolute ordering within a branch (even if you don’t branch yet)
 }
 
 enum IntegrationType {

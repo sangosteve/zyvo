@@ -1,7 +1,7 @@
 export const TRIGGER_OPTIONS = [
 	{
 		id: "instagram-comments",
-		label: "User comments on your Post or Reel",
+		label: "User comments on your Post",
 		description: "Post or Reel Comments",
 		icon: "instagram", // or icon component
 	},
