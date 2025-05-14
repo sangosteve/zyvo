@@ -65,6 +65,7 @@ model Trigger {
   type         String
   Automation   Automation? @relation(fields: [automationId], references: [id])
   automationId String?     @db.Uuid()
+  event        String? // e.g. "new_message"
 }
 
 model Action {

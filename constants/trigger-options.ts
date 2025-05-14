@@ -1,21 +1,26 @@
 export const TRIGGER_OPTIONS = [
 	{
-		id: "instagram-comments",
-		label: "User comments on your Post",
-		description: "Post or Reel Comments",
-		icon: "instagram", // or icon component
+		label: "User sends a DM",
+		value: "dm_received",
+		description: "Triggered when a user sends a direct message.",
+		icon: "/icons/instagram.svg",
 	},
 	{
-		id: "story-reply",
-		label: "User replies to your Story",
-		description: "Story Reply",
-		icon: "instagram",
+		label: "Story mention",
+		value: "story_mention",
+		description: "Triggered when a user mentions you in a story.",
+		icon: "/icons/instagram.svg",
 	},
 	{
-		id: "send-message",
-		label: "User sends a message",
-		description: "Instagram Message",
-		icon: "instagram",
+		label: "Story reply",
+		value: "story_reply",
+		description: "Triggered when someone replies to your story.",
+		icon: "/icons/instagram.svg",
 	},
-	// Add more as needed
+	{
+		label: "Post comment",
+		value: "post_comment",
+		description: "Triggered when someone comments on your post.",
+		icon: "/icons/instagram.svg",
+	},
 ];

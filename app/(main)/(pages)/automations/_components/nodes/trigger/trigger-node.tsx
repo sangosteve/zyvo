@@ -1,23 +1,35 @@
-import { Button } from "@/components/ui/button";
-import { useTriggerModal } from "@/stores/use-trigger-modal";
 import { Position } from "@xyflow/react";
-import { Plus } from "lucide-react";
 import { CustomHandle } from "../shared/custom-handle";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { TriggerItem } from "./trigger-item";
-export function TriggerNode() {
-    const { openModal, selectedTriggers } = useTriggerModal();
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTriggerStore } from "@/stores/use-trigger-store";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import { TRIGGER_OPTIONS } from "@/constants/trigger-options";  // Ensure this file exists and contains the icon/label/description
+
+async function getTrigger(id: string) {
+    const res = await axios.get(`/api/triggers/${id}`);
+    return res.data;
+}
+
+export function TriggerNode({ id }: { id: string }) {
+    const { openSheet } = useTriggerStore();
+
+    const { data: trigger, isLoading } = useQuery({
+        queryKey: ["trigger", id],
+        queryFn: () => getTrigger(id),
+    });
+
+    if (isLoading) return <p>Loading...</p>;
+
+    // Get the trigger options based on event type
+    const triggerOption = TRIGGER_OPTIONS.find((option) => option.value === trigger?.event);
 
     return (
-        <Card className="rounded-sm border bg-background text-foreground shadow-sm w-60 relative px-4 py-3 space-y-2 hover:border-primary hover:cursor-pointer">
-
+        <Card
+            onClick={(e) => openSheet(id)}
+            className="rounded-sm border bg-background text-foreground shadow-sm w-60 relative px-4 py-3 space-y-2 hover:border-primary hover:cursor-pointer"
+        >
             <CardHeader className="p-0">
                 <CardTitle className="text-xs font-bold text-muted-foreground">
                     When…
@@ -28,23 +40,22 @@ export function TriggerNode() {
             </CardHeader>
 
             <CardContent className="p-0 flex flex-col gap-2">
-                {selectedTriggers.map((trigger) => (
+                {/* Display trigger icon and label */}
+                {triggerOption && (
+                    <div className="flex items-center space-x-2">
+                        <Image src={triggerOption.icon} alt={triggerOption.label} width={16} height={16} />
+                        <div className="text-xs font-medium text-primary">
+                            {triggerOption.label}
+                        </div>
+                    </div>
+                )}
 
-                    <TriggerItem id={trigger.id} label={trigger.label} description={trigger.description} />
-                ))}
+                {/* Display trigger event description */}
+                <div className="text-[9px] text-muted-foreground pl-6">
+                    {triggerOption?.description || "No description available"}
+                </div>
 
-                <CardFooter className="p-0 mt-2">
-
-                    <Button
-                        onClick={() => openModal()}
-                        size="sm"
-                        className="w-full text-xs border border-primary border-dashed bg-transparent text-primary hover:bg-purple-300"
-                    >
-                        <Plus /> Add Trigger
-                    </Button>
-
-                </CardFooter>
-
+                <CardFooter className="p-0 mt-2" />
                 <CustomHandle type="source" position={Position.Right} />
             </CardContent>
         </Card>
